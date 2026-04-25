@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # The Node.js Express Backend
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - PORT=5173
+      - DATABASE_URL=postgresql://postgres:postgres@localhost:5432/voice_flow_db
+    depends_on:
+      - postgres
+    networks:
+      - voice-flow-network
+
+  # The React Vite Frontend (Served via Nginx)
+  client:
+    build:
+      context: .
+      dockerfile: apps/client/Dockerfile
+    ports:
+      - "5174:80" # Changed from 5173 to avoid conflict if running locally
+    depends_on:
+      - server
+    networks:
+      - voice-flow-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=voice_flow_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - voice-flow-network
+
+networks:
+  voice-flow-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+

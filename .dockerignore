@@ -1,0 +1,10 @@
+.git
+.gitignore
+node_modules
+dist
+build
+coverage
+.next
+.turbo
+*.log
+.DS_Store
