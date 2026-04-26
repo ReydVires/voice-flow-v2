@@ -117,7 +117,7 @@ app.get('/api/jobs/:id', async (req: Request, res: Response) => {
 app.patch('/api/jobs/:id/assign-reporter', async (req: Request, res: Response) => {
   try {
     const { reporterId } = req.body;
-    
+
     // Update job status
     const [updatedJob] = await db.update(jobs)
       .set({
@@ -143,19 +143,33 @@ app.patch('/api/jobs/:id/assign-reporter', async (req: Request, res: Response) =
 app.patch('/api/jobs/:id/assign-editor', async (req: Request, res: Response) => {
   try {
     const { editorId } = req.body;
+    const jobId = req.params.id;
+
     const [updatedJob] = await db.update(jobs)
       .set({
         editorId,
-        status: 'REVIEWED',
+        status: 'TRANSCRIBED',
         updatedAt: new Date()
       })
-      .where(eq(jobs.id, req.params.id))
+      .where(eq(jobs.id, jobId))
       .returning();
 
-    // Note: We could also handle editor availability here if needed, 
-    // but the request specifically mentioned reporter.
+    // Simulate "Transcription" process: move to REVIEWED after 2 seconds
+    setTimeout(async () => {
+      try {
+        await db.update(jobs)
+          .set({
+            status: 'REVIEWED',
+            updatedAt: new Date()
+          })
+          .where(eq(jobs.id, jobId));
+        console.log(`Job ${jobId} moved to REVIEWED after transcription`);
+      } catch (err) {
+        console.error(`Failed to move Job ${jobId} to REVIEWED:`, err);
+      }
+    }, 2000);
 
-    successResponse(res, updatedJob, 'Editor assigned successfully');
+    successResponse(res, updatedJob, 'Editor assigned. Job is now being transcribed.');
   } catch (error) {
     console.error('Error assigning editor:', error);
     errorResponse(res);
@@ -178,14 +192,14 @@ app.patch('/api/jobs/:id/complete', async (req: Request, res: Response) => {
       })
       .where(eq(jobs.id, req.params.id))
       .returning();
-    
+
     // Release the reporter back to available
     if (job.reporterId) {
       await db.update(users)
         .set({ availability: true, updatedAt: new Date() })
         .where(eq(users.id, job.reporterId));
     }
-    
+
     successResponse(res, updatedJob, 'Job completed successfully');
   } catch (error) {
     console.error('Error completing job:', error);
@@ -199,7 +213,7 @@ app.patch('/api/jobs/:id/complete', async (req: Request, res: Response) => {
 app.get('/api/reporters', async (req: Request, res: Response) => {
   try {
     const jobId = req.query.jobId as string;
-    
+
     // Get all available reporters
     let availableReporters = await db.select().from(users).where(
       and(

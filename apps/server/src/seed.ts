@@ -21,12 +21,27 @@ async function seed() {
       location: 'Bandung',
       availability: true,
     },
+    {
+      username: 'reporter_sby',
+      email: 'reporter3@example.com',
+      password: 'password123',
+      role: 'REPORTER',
+      location: 'Surabaya',
+      availability: true,
+    },
   ];
 
   const editors = [
     {
       username: 'editor1',
       email: 'editor1@example.com',
+      password: 'password123',
+      role: 'EDITOR',
+      availability: true,
+    },
+    {
+      username: 'editor2',
+      email: 'editor2@example.com',
       password: 'password123',
       role: 'EDITOR',
       availability: true,
