@@ -5,6 +5,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "setup:db": "pnpm --filter server db:push && pnpm --filter server db:seed",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "clean": "turbo run clean"

@@ -38,23 +38,24 @@ DATABASE_URL=postgresql://postgres:postgres@localhost:5432/voice_flow_db
 
 ### 3. Database Setup
 
-Start the database container:
+1. **Start the database container**:
+   Ensure Docker is running and start the PostgreSQL service:
+   ```bash
+   docker-compose up -d postgres
+   ```
 
-```bash
-docker-compose up -d postgres
-```
+2. **Initialize Database Schema & Seed Data**:
+   Run the following command to push the schema to the database and seed initial users (Reporters and Editors):
+   ```bash
+   pnpm setup:db
+   ```
+   *Note: Ensure your `apps/server/.env` is correctly configured before running this. If you are not using Docker, you must manually create the `voice_flow_db` database in your local PostgreSQL instance first.*
 
-Push the database schema and seed initial data (Reporters and Editors):
 
-```bash
-# Push schema
-pnpm --filter server db:push
-
-# Seed data
-pnpm --filter server db:seed
-```
+---
 
 ### 4. Running the Project
+
 
 Start the development server for both frontend and backend:
 
