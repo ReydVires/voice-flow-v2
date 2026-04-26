@@ -31,14 +31,13 @@ export const useCreateJob = () => {
   });
 };
 
-export const useUpdateJobStatus = () => {
+export const useCompleteJob = () => {
   const queryClient = useQueryClient();
-  return useMutation<ApiResponse<Job>, Error, { id: string; status: JobStatus }>({
-    mutationFn: async ({ id, status }) => {
-      const res = await fetch(`${API_URL}/jobs/${id}/status`, {
+  return useMutation<ApiResponse<Job>, Error, string>({
+    mutationFn: async (id) => {
+      const res = await fetch(`${API_URL}/jobs/${id}/complete`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status }),
       });
       return handleResponse(res);
     },
@@ -47,6 +46,7 @@ export const useUpdateJobStatus = () => {
     },
   });
 };
+
 
 export const useAssignReporter = () => {
   const queryClient = useQueryClient();
@@ -82,7 +82,7 @@ export const useAssignEditor = () => {
   });
 };
 
-export const useReporters = (jobId?: string) => {
+export const useReporters = (jobId?: string, enabled = true) => {
   return useQuery<ApiResponse<User[]>, Error, User[]>({
     queryKey: ['reporters', jobId],
     queryFn: async () => {
@@ -90,17 +90,21 @@ export const useReporters = (jobId?: string) => {
       const res = await fetch(url);
       return handleResponse(res);
     },
+    staleTime: 0,
+    enabled: enabled && (!!jobId || jobId === undefined), // undefined is for general reporter list
     select: (res) => res?.data || [],
   });
 };
 
-export const useEditors = () => {
+export const useEditors = (enabled = true) => {
   return useQuery<ApiResponse<User[]>, Error, User[]>({
     queryKey: ['editors'],
     queryFn: async () => {
       const res = await fetch(`${API_URL}/editors`);
       return handleResponse(res);
     },
+    enabled,
     select: (res) => res?.data || [],
   });
 };
+

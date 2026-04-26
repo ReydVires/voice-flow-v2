@@ -117,6 +117,8 @@ app.get('/api/jobs/:id', async (req: Request, res: Response) => {
 app.patch('/api/jobs/:id/assign-reporter', async (req: Request, res: Response) => {
   try {
     const { reporterId } = req.body;
+    
+    // Update job status
     const [updatedJob] = await db.update(jobs)
       .set({
         reporterId,
@@ -125,6 +127,12 @@ app.patch('/api/jobs/:id/assign-reporter', async (req: Request, res: Response) =
       })
       .where(eq(jobs.id, req.params.id))
       .returning();
+
+    // Update reporter availability to false
+    await db.update(users)
+      .set({ availability: false, updatedAt: new Date() })
+      .where(eq(users.id, reporterId));
+
     successResponse(res, updatedJob, 'Reporter assigned successfully');
   } catch (error) {
     console.error('Error assigning reporter:', error);
@@ -138,10 +146,15 @@ app.patch('/api/jobs/:id/assign-editor', async (req: Request, res: Response) => 
     const [updatedJob] = await db.update(jobs)
       .set({
         editorId,
+        status: 'REVIEWED',
         updatedAt: new Date()
       })
       .where(eq(jobs.id, req.params.id))
       .returning();
+
+    // Note: We could also handle editor availability here if needed, 
+    // but the request specifically mentioned reporter.
+
     successResponse(res, updatedJob, 'Editor assigned successfully');
   } catch (error) {
     console.error('Error assigning editor:', error);
@@ -149,27 +162,45 @@ app.patch('/api/jobs/:id/assign-editor', async (req: Request, res: Response) => 
   }
 });
 
-app.patch('/api/jobs/:id/status', async (req: Request, res: Response) => {
+app.patch('/api/jobs/:id/complete', async (req: Request, res: Response) => {
   try {
-    const { status } = req.body;
+    // Get the job first to know who the reporter is
+    const job = await db.query.jobs.findFirst({
+      where: eq(jobs.id, req.params.id)
+    });
+
+    if (!job) return errorResponse(res, 'Job not found', 404);
+
     const [updatedJob] = await db.update(jobs)
       .set({
-        status,
+        status: 'COMPLETED',
         updatedAt: new Date()
       })
       .where(eq(jobs.id, req.params.id))
       .returning();
-    successResponse(res, updatedJob, 'Status updated successfully');
+    
+    // Release the reporter back to available
+    if (job.reporterId) {
+      await db.update(users)
+        .set({ availability: true, updatedAt: new Date() })
+        .where(eq(users.id, job.reporterId));
+    }
+    
+    successResponse(res, updatedJob, 'Job completed successfully');
   } catch (error) {
-    console.error('Error updating status:', error);
+    console.error('Error completing job:', error);
     errorResponse(res);
   }
 });
+
+
 
 // User Endpoints
 app.get('/api/reporters', async (req: Request, res: Response) => {
   try {
     const jobId = req.query.jobId as string;
+    
+    // Get all available reporters
     let availableReporters = await db.select().from(users).where(
       and(
         eq(users.role, 'REPORTER'),
@@ -180,10 +211,12 @@ app.get('/api/reporters', async (req: Request, res: Response) => {
     if (jobId) {
       const job = await db.query.jobs.findFirst({ where: eq(jobs.id, jobId) });
       if (job && job.locationType === 'physical' && job.locationName) {
-        // Sort by same city preference
+        // Sort: Reporters in the same city come first
         availableReporters.sort((a, b) => {
-          if (a.location === job.locationName && b.location !== job.locationName) return -1;
-          if (a.location !== job.locationName && b.location === job.locationName) return 1;
+          const aMatch = a.location?.toLowerCase() === job.locationName?.toLowerCase();
+          const bMatch = b.location?.toLowerCase() === job.locationName?.toLowerCase();
+          if (aMatch && !bMatch) return -1;
+          if (!aMatch && bMatch) return 1;
           return 0;
         });
       }
@@ -195,6 +228,7 @@ app.get('/api/reporters', async (req: Request, res: Response) => {
     errorResponse(res);
   }
 });
+
 
 app.get('/api/editors', async (_, res: Response) => {
   try {

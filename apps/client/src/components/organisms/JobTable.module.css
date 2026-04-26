@@ -1,9 +1,16 @@
-.tableContainer {
-  overflow-x: auto;
+.wrapper {
   background: var(--bg-card);
   border-radius: var(--radius);
   border: 1px solid var(--border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
+
+.tableContainer {
+  overflow-x: auto;
+}
+
 
 .table {
   width: 100%;

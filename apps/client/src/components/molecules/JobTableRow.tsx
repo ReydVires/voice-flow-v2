@@ -7,7 +7,7 @@ interface JobTableRowProps {
   job: Job;
   onAssignReporter: (job: Job) => void;
   onAssignEditor: (job: Job) => void;
-  onUpdateStatus: (job: Job) => void;
+  onCompleteJob: (job: Job) => void;
 }
 
 export const formatIDR = (amount: number) => {
@@ -22,7 +22,7 @@ export const JobTableRow: React.FC<JobTableRowProps> = ({
   job,
   onAssignReporter,
   onAssignEditor,
-  onUpdateStatus
+  onCompleteJob
 }) => {
   const typeClass = job.locationType === 'physical' ? styles.typePhysical : styles.typeRemote;
 
@@ -59,7 +59,7 @@ export const JobTableRow: React.FC<JobTableRowProps> = ({
             size="sm"
             variant="secondary"
             onClick={() => onAssignEditor(job)}
-            disabled={job.status === 'NEW' || job.status === 'ASSIGNED'}
+            disabled={job.status === 'NEW'}
           >
             Assign Editor
           </Button>
@@ -76,9 +76,12 @@ export const JobTableRow: React.FC<JobTableRowProps> = ({
         </div>
       </td>
       <td>
-        <Button size="sm" variant="ghost" onClick={() => onUpdateStatus(job)}>
-          Update
-        </Button>
+        {job.status === 'REVIEWED' && (
+          <Button size="sm" variant="ghost" onClick={() => onCompleteJob(job)}>
+            Complete Job
+          </Button>
+        )}
+
       </td>
     </tr>
   );

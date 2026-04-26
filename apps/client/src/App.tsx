@@ -1,25 +1,25 @@
 import { useState } from 'react';
 import type { Job, JobStatus } from '@mern/types';
-import { useJobs, useCreateJob, useUpdateJobStatus, useAssignReporter, useAssignEditor, useReporters, useEditors } from './features/jobs/hooks/useJobs';
+import { useJobs, useCreateJob, useCompleteJob, useAssignReporter, useAssignEditor, useReporters, useEditors } from './features/jobs/hooks/useJobs';
 import { JobTable } from './components/organisms/JobTable';
 import { JobForm } from './components/organisms/JobForm';
 import { AssignmentModal } from './components/organisms/AssignmentModal';
-import { StatusModal } from './components/organisms/StatusModal';
 import utils from './styles/utils.module.css';
 import styles from './App.module.css';
 
 function App() {
   const { data: jobs, isLoading: jobsLoading } = useJobs();
   const { mutate: createJob, isPending: isPendingCreateJob } = useCreateJob();
-  const { mutate: updateStatus, isPending: isPendingUpdateStatus } = useUpdateJobStatus();
+  const { mutate: completeJob } = useCompleteJob();
   const { mutate: assignReporter, isPending: isPendingAssignReporter } = useAssignReporter();
   const { mutate: assignEditor, isPending: isPendingAssignEditor } = useAssignEditor();
 
   const [activeJob, setActiveJob] = useState<Job | null>(null);
-  const [modalType, setModalType] = useState<'reporter' | 'editor' | 'status' | null>(null);
+  const [modalType, setModalType] = useState<'reporter' | 'editor' | null>(null);
 
-  const { data: reporters } = useReporters(activeJob?.id);
-  const { data: editors } = useEditors();
+  const { data: reporters } = useReporters(activeJob?.id, modalType === 'reporter');
+  const { data: editors } = useEditors(modalType === 'editor');
+
 
   const handleOpenAssignReporter = (job: Job) => {
     setActiveJob(job);
@@ -31,10 +31,10 @@ function App() {
     setModalType('editor');
   };
 
-  const handleOpenUpdateStatus = (job: Job) => {
-    setActiveJob(job);
-    setModalType('status');
+  const handleCompleteJob = (job: Job) => {
+    completeJob(job.id);
   };
+
 
   const handleAssignReporter = (reporterId: string) => {
     if (activeJob) {
@@ -47,14 +47,6 @@ function App() {
   const handleAssignEditor = (editorId: string) => {
     if (activeJob) {
       assignEditor({ jobId: activeJob.id, editorId }, {
-        onSuccess: () => setModalType(null)
-      });
-    }
-  };
-
-  const handleUpdateStatus = (status: JobStatus) => {
-    if (activeJob) {
-      updateStatus({ id: activeJob.id, status }, {
         onSuccess: () => setModalType(null)
       });
     }
@@ -90,7 +82,7 @@ function App() {
             isLoading={jobsLoading}
             onAssignReporter={handleOpenAssignReporter}
             onAssignEditor={handleOpenAssignEditor}
-            onUpdateStatus={handleOpenUpdateStatus}
+            onCompleteJob={handleCompleteJob}
           />
         </section>
       </div>
@@ -114,20 +106,12 @@ function App() {
           isLoading={isPendingAssignEditor}
         />
       )}
-
-      {modalType === 'status' && activeJob && (
-        <StatusModal
-          currentStatus={activeJob.status}
-          onSelect={handleUpdateStatus}
-          onClose={() => setModalType(null)}
-          isLoading={isPendingUpdateStatus}
-        />
-      )}
     </div>
   );
 }
 
 export default App;
+
 
 
 
