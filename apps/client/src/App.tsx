@@ -1,45 +1,126 @@
-import { useUsers } from './features/users/hooks/useUsers';
-import { usePing } from './features/dashboard/hooks/usePing';
+import { useState } from 'react';
+import type { Job, JobStatus } from '@mern/types';
+import { useJobs, useCreateJob, useUpdateJobStatus, useAssignReporter, useAssignEditor, useReporters, useEditors } from './features/jobs/hooks/useJobs';
+import { JobTable } from './components/organisms/JobTable';
+import { JobForm } from './components/organisms/JobForm';
+import { AssignmentModal } from './components/organisms/AssignmentModal';
+import { StatusModal } from './components/organisms/StatusModal';
 
 function App() {
-  const { data: healthStatus, isLoading: healthIsLoading, error: healthError } = usePing();
+  const { data: jobs, isLoading: jobsLoading } = useJobs();
+  const { mutate: createJob, isPending: isPendingCreateJob } = useCreateJob();
+  const { mutate: updateStatus, isPending: isPendingUpdateStatus } = useUpdateJobStatus();
+  const { mutate: assignReporter, isPending: isPendingAssignReporter } = useAssignReporter();
+  const { mutate: assignEditor, isPending: isPendingAssignEditor } = useAssignEditor();
 
-  const { data: userList, isLoading: usersIsLoading, error: usersError } = useUsers();
+  const [activeJob, setActiveJob] = useState<Job | null>(null);
+  const [modalType, setModalType] = useState<'reporter' | 'editor' | 'status' | null>(null);
+
+  const { data: reporters } = useReporters(activeJob?.id);
+  const { data: editors } = useEditors();
+
+  const handleOpenAssignReporter = (job: Job) => {
+    setActiveJob(job);
+    setModalType('reporter');
+  };
+
+  const handleOpenAssignEditor = (job: Job) => {
+    setActiveJob(job);
+    setModalType('editor');
+  };
+
+  const handleOpenUpdateStatus = (job: Job) => {
+    setActiveJob(job);
+    setModalType('status');
+  };
+
+  const handleAssignReporter = (reporterId: string) => {
+    if (activeJob) {
+      assignReporter({ jobId: activeJob.id, reporterId }, {
+        onSuccess: () => setModalType(null)
+      });
+    }
+  };
+
+  const handleAssignEditor = (editorId: string) => {
+    if (activeJob) {
+      assignEditor({ jobId: activeJob.id, editorId }, {
+        onSuccess: () => setModalType(null)
+      });
+    }
+  };
+
+  const handleUpdateStatus = (status: JobStatus) => {
+    if (activeJob) {
+      updateStatus({ id: activeJob.id, status }, {
+        onSuccess: () => setModalType(null)
+      });
+    }
+  };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'system-ui, sans-serif' }}>
-      <h1>MERN + Turborepo Client</h1>
+    <div className="container">
+      <header style={{ marginBottom: '3rem', textAlign: 'center' }}>
+        <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', background: 'linear-gradient(to right, #818cf8, #c084fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          Court Reporting Workflow
+        </h1>
+        <p style={{ color: 'var(--text-muted)' }}>Manage jobs, assignments, and payments in one place.</p>
+      </header>
 
-      <section>
-        <h2>Status</h2>
-        <p>
-          <span>
-            Backend Status:
-          </span>
-          &nbsp;
-          <strong>
-            {healthIsLoading ? 'Loading...' : healthError ? 'Error' : healthStatus}
-          </strong>
-        </p>
-      </section>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '3rem' }}>
+        <section>
+          <JobForm
+            onSubmit={(data) => {
+              createJob(data);
+            }}
+            isLoading={isPendingCreateJob} />
+        </section>
 
-      <section>
-        <h2>Users</h2>
-        {usersIsLoading ? (
-          <p>Loading users...</p>
-        ) : usersError ? (
-          <p>Error loading users</p>
-        ) : (
-          <ul>
-            {userList?.map((user) => (
-              <li key={user.id}>
-                {user.username} ({user.email})
-              </li>
-            ))}
-            {userList?.length === 0 && <p>No users found.</p>}
-          </ul>
-        )}
-      </section>
+        <section>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+            <h2>Active Jobs</h2>
+            <div className="glass" style={{ padding: '0.5rem 1rem', borderRadius: '999px', fontSize: '0.875rem' }}>
+              {jobs?.length || 0} Total Jobs
+            </div>
+          </div>
+          <JobTable
+            jobs={jobs || []}
+            isLoading={jobsLoading}
+            onAssignReporter={handleOpenAssignReporter}
+            onAssignEditor={handleOpenAssignEditor}
+            onUpdateStatus={handleOpenUpdateStatus}
+          />
+        </section>
+      </div>
+
+      {modalType === 'reporter' && (
+        <AssignmentModal
+          title="Assign Reporter"
+          users={reporters || []}
+          onSelect={handleAssignReporter}
+          onClose={() => setModalType(null)}
+          isLoading={isPendingAssignReporter}
+        />
+      )}
+
+      {modalType === 'editor' && (
+        <AssignmentModal
+          title="Assign Editor"
+          users={editors || []}
+          onSelect={handleAssignEditor}
+          onClose={() => setModalType(null)}
+          isLoading={isPendingAssignEditor}
+        />
+      )}
+
+      {modalType === 'status' && activeJob && (
+        <StatusModal
+          currentStatus={activeJob.status}
+          onSelect={handleUpdateStatus}
+          onClose={() => setModalType(null)}
+          isLoading={isPendingUpdateStatus}
+        />
+      )}
     </div>
   );
 }
