@@ -1,3 +1,5 @@
+import styles from './FormElements.module.css';
+
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
@@ -5,13 +7,13 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export const Input: React.FC<InputProps> = ({ label, error, className = '', ...props }) => {
   return (
-    <div className="input-group">
-      {label && <label className="input-label" htmlFor={props.id}>{label}</label>}
+    <div className={styles.inputGroup}>
+      {label && <label className={styles.inputLabel} htmlFor={props.id}>{label}</label>}
       <input
-        className={`form-input ${error ? 'input-error' : ''} ${className}`}
+        className={`${styles.formInput} ${error ? styles.inputError : ''} ${className}`}
         {...props}
       />
-      {error && <span className="error-text">{error}</span>}
+      {error && <span className={styles.errorText}>{error}</span>}
     </div>
   );
 };
@@ -24,10 +26,10 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 
 export const Select: React.FC<SelectProps> = ({ label, error, options, className = '', ...props }) => {
   return (
-    <div className="input-group">
-      {label && <label className="input-label">{label}</label>}
+    <div className={styles.inputGroup}>
+      {label && <label className={styles.inputLabel}>{label}</label>}
       <select
-        className={`form-input ${error ? 'input-error' : ''} ${className}`}
+        className={`${styles.formInput} ${error ? styles.inputError : ''} ${className}`}
         {...props}
       >
         {options.map((opt) => (
@@ -36,7 +38,7 @@ export const Select: React.FC<SelectProps> = ({ label, error, options, className
           </option>
         ))}
       </select>
-      {error && <span className="error-text">{error}</span>}
+      {error && <span className={styles.errorText}>{error}</span>}
     </div>
   );
 };

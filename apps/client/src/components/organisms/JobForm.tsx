@@ -2,6 +2,8 @@ import { useState, useRef } from 'react';
 import { Input, Select } from '../atoms/FormElements';
 import { Button } from '../atoms/Button';
 import type { LocationType, Job } from '@mern/types';
+import styles from './JobForm.module.css';
+import utils from '../../styles/utils.module.css';
 
 type OnSubmit = (data: Pick<Job, 'caseName' | 'duration' | 'locationType' | 'locationName'>) => void;
 
@@ -32,9 +34,9 @@ export const JobForm: React.FC<JobFormProps> = ({ onSubmit, isLoading }) => {
   };
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="card glass">
-      <h2 style={{ marginBottom: '1.5rem' }}>Create New Job</h2>
-      <div className="form-grid">
+    <form ref={formRef} onSubmit={handleSubmit} className={`${utils.card} ${utils.glass}`}>
+      <h2 className={styles.formTitle}>Create New Job</h2>
+      <div className={styles.formGrid}>
         <Input
           label="Case Name"
           id="case-name"
@@ -71,9 +73,10 @@ export const JobForm: React.FC<JobFormProps> = ({ onSubmit, isLoading }) => {
           />
         )}
       </div>
-      <Button type="submit" isLoading={isLoading} style={{ marginTop: '1rem', width: '100%' }}>
+      <Button type="submit" isLoading={isLoading} className={styles.submitButton}>
         Create Job
       </Button>
     </form>
   );
 };
+

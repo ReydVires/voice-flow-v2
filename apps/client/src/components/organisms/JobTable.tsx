@@ -1,5 +1,6 @@
 import type { Job } from '@mern/types';
 import { JobTableRow } from '../molecules/JobTableRow';
+import styles from './JobTable.module.css';
 
 interface JobTableProps {
   jobs: Job[];
@@ -16,11 +17,11 @@ export const JobTable: React.FC<JobTableProps> = ({
   onAssignEditor,
   onUpdateStatus
 }) => {
-  if (isLoading) return <div className="loading">Loading jobs...</div>;
+  if (isLoading) return <div className={styles.loading}>Loading jobs...</div>;
 
   return (
-    <div className="table-container">
-      <table>
+    <div className={styles.tableContainer}>
+      <table className={styles.table}>
         <thead>
           <tr>
             <th>Case Name</th>
@@ -45,7 +46,7 @@ export const JobTable: React.FC<JobTableProps> = ({
           ))}
           {jobs.length === 0 && (
             <tr>
-              <td colSpan={8} style={{ textAlign: 'center', padding: '2rem' }}>
+              <td colSpan={8} className={styles.emptyMessage}>
                 No jobs found. Create one to get started.
               </td>
             </tr>

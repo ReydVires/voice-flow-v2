@@ -1,6 +1,7 @@
 import type { Job } from '@mern/types';
 import { StatusBadge } from '../atoms/StatusBadge';
 import { Button } from '../atoms/Button';
+import styles from './JobTableRow.module.css';
 
 interface JobTableRowProps {
   job: Job;
@@ -23,24 +24,26 @@ export const JobTableRow: React.FC<JobTableRowProps> = ({
   onAssignEditor,
   onUpdateStatus
 }) => {
+  const typeClass = job.locationType === 'physical' ? styles.typePhysical : styles.typeRemote;
+
   return (
-    <tr className="table-row">
+    <tr className={styles.tableRow}>
       <td>{job.caseName}</td>
       <td>{job.duration} min</td>
       <td>
-        <div className="location-info">
-          <span className={`location-type type-${job.locationType}`}>
+        <div className={styles.locationInfo}>
+          <span className={`${styles.locationType} ${typeClass}`}>
             {job.locationType}
           </span>
-          {job.locationName && <span className="location-name">{job.locationName}</span>}
+          {job.locationName && <span className={styles.locationName}>{job.locationName}</span>}
         </div>
       </td>
       <td><StatusBadge status={job.status} /></td>
       <td>
         {job.reporter ? (
-          <div className="user-info">
-            <span className="user-name">{job.reporter.username}</span>
-            <span className="user-detail">{job.reporter.location}</span>
+          <div className={styles.userInfo}>
+            <span className={styles.userName}>{job.reporter.username}</span>
+            <span className={styles.userDetail}>{job.reporter.location}</span>
           </div>
         ) : (
           <Button size="sm" variant="secondary" onClick={() => onAssignReporter(job)}>
@@ -50,7 +53,7 @@ export const JobTableRow: React.FC<JobTableRowProps> = ({
       </td>
       <td>
         {job.editor ? (
-          <span className="user-name">{job.editor.username}</span>
+          <span className={styles.userName}>{job.editor.username}</span>
         ) : (
           <Button
             size="sm"
@@ -63,11 +66,11 @@ export const JobTableRow: React.FC<JobTableRowProps> = ({
         )}
       </td>
       <td>
-        <div className="payment-info">
-          <div className="payment-item">
+        <div className={styles.paymentInfo}>
+          <div className={styles.paymentItem}>
             <span>Rep:</span> {formatIDR(job.payments?.reporterEarnings || 0)}
           </div>
-          <div className="payment-item">
+          <div className={styles.paymentItem}>
             <span>Ed:</span> {formatIDR(job.payments?.editorEarnings || 0)}
           </div>
         </div>

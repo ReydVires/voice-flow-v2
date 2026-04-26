@@ -5,6 +5,8 @@ import { JobTable } from './components/organisms/JobTable';
 import { JobForm } from './components/organisms/JobForm';
 import { AssignmentModal } from './components/organisms/AssignmentModal';
 import { StatusModal } from './components/organisms/StatusModal';
+import utils from './styles/utils.module.css';
+import styles from './App.module.css';
 
 function App() {
   const { data: jobs, isLoading: jobsLoading } = useJobs();
@@ -59,15 +61,15 @@ function App() {
   };
 
   return (
-    <div className="container">
-      <header style={{ marginBottom: '3rem', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', background: 'linear-gradient(to right, #818cf8, #c084fc)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+    <div className={utils.container}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>
           Court Reporting Workflow
         </h1>
-        <p style={{ color: 'var(--text-muted)' }}>Manage jobs, assignments, and payments in one place.</p>
+        <p className={styles.subtitle}>Manage jobs, assignments, and payments in one place.</p>
       </header>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '3rem' }}>
+      <div className={styles.mainGrid}>
         <section>
           <JobForm
             onSubmit={(data) => {
@@ -77,9 +79,9 @@ function App() {
         </section>
 
         <section>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <div className={styles.sectionHeader}>
             <h2>Active Jobs</h2>
-            <div className="glass" style={{ padding: '0.5rem 1rem', borderRadius: '999px', fontSize: '0.875rem' }}>
+            <div className={`${utils.glass} ${styles.jobCounter}`}>
               {jobs?.length || 0} Total Jobs
             </div>
           </div>
@@ -126,4 +128,6 @@ function App() {
 }
 
 export default App;
+
+
 

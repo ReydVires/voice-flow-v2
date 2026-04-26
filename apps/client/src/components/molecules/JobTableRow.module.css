@@ -1,0 +1,42 @@
+.locationInfo,
+.userInfo,
+.paymentInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.locationType {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.typePhysical {
+  color: var(--warning);
+}
+
+.typeRemote {
+  color: var(--primary);
+}
+
+.userName {
+  font-weight: 600;
+}
+
+.userDetail {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.paymentItem {
+  font-size: 0.75rem;
+}
+
+.paymentItem span {
+  color: var(--text-muted);
+}
+
+.tableRow:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
