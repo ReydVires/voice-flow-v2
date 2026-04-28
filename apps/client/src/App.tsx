@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import type { Job, JobStatus } from '@mern/types';
+import type { Job } from '@mern/types';
 import { useJobs, useCreateJob, useCompleteJob, useAssignReporter, useAssignEditor, useReporters, useEditors } from './features/jobs/hooks/useJobs';
+import { useJobEvents } from './features/jobs/hooks/useJobEvents';
 import { JobTable } from './components/organisms/JobTable';
 import { JobForm } from './components/organisms/JobForm';
 import { AssignmentModal } from './components/organisms/AssignmentModal';
@@ -20,6 +21,7 @@ function App() {
   const { data: reporters } = useReporters(activeJob?.id, modalType === 'reporter');
   const { data: editors } = useEditors(modalType === 'editor');
 
+  useJobEvents();
 
   const handleOpenAssignReporter = (job: Job) => {
     setActiveJob(job);
