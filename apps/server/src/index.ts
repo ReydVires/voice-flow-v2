@@ -4,7 +4,10 @@ import * as dotenv from 'dotenv';
 import { db, pool } from './db';
 import { users, jobs } from './db/schema';
 import { eq, and } from 'drizzle-orm';
-import type { ApiResponse, JobStatus, UserRole } from '@mern/types';
+import { type ApiResponse, type JobStatus, type UserRole, SSE_EVENTS } from '@mern/types';
+import { EventEmitter } from 'events';
+
+const jobEvents = new EventEmitter();
 
 dotenv.config();
 
@@ -90,6 +93,30 @@ app.get('/api/jobs', async (_, res: Response) => {
   }
 });
 
+// SSE Endpoint for job updates
+app.get('/api/jobs/events', (req: Request, res: Response) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+
+  const onStatusUpdate = (job: any) => {
+    res.write(`data: ${JSON.stringify({ type: SSE_EVENTS.JOB_STATUS_UPDATE, job })}\n\n`);
+  };
+
+  jobEvents.on(SSE_EVENTS.JOB_STATUS_UPDATE, onStatusUpdate);
+
+  // Send heartbeat
+  const heartbeat = setInterval(() => {
+    res.write(': heartbeat\n\n');
+  }, 15000);
+
+  req.on('close', () => {
+    clearInterval(heartbeat);
+    jobEvents.off(SSE_EVENTS.JOB_STATUS_UPDATE, onStatusUpdate);
+  });
+});
+
 app.get('/api/jobs/:id', async (req: Request, res: Response) => {
   try {
     const job = await db.query.jobs.findFirst({
@@ -157,12 +184,18 @@ app.patch('/api/jobs/:id/assign-editor', async (req: Request, res: Response) => 
     // Simulate "Transcription" process: move to REVIEWED after 2 seconds
     setTimeout(async () => {
       try {
-        await db.update(jobs)
+        const [updatedJob] = await db.update(jobs)
           .set({
             status: 'REVIEWED',
             updatedAt: new Date()
           })
-          .where(eq(jobs.id, jobId));
+          .where(eq(jobs.id, jobId))
+          .returning();
+        
+        if (updatedJob) {
+          jobEvents.emit(SSE_EVENTS.JOB_STATUS_UPDATE, updatedJob);
+        }
+        
         console.log(`Job ${jobId} moved to REVIEWED after transcription`);
       } catch (err) {
         console.error(`Failed to move Job ${jobId} to REVIEWED:`, err);
@@ -206,6 +239,7 @@ app.patch('/api/jobs/:id/complete', async (req: Request, res: Response) => {
     errorResponse(res);
   }
 });
+
 
 
 

@@ -41,3 +41,7 @@ export interface JobPayments {
   editorEarnings: number;
   totalPayout: number;
 }
+
+export const SSE_EVENTS = {
+  JOB_STATUS_UPDATE: 'statusUpdate',
+} as const;
