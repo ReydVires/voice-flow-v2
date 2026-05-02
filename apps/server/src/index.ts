@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 import { db, pool } from './db';
 import { users, jobs } from './db/schema';
 import { eq, and } from 'drizzle-orm';
-import { type ApiResponse, type JobStatus, type UserRole, SSE_EVENTS } from '@mern/types';
+import { type ApiResponse, SSE_EVENTS } from '@mern/types';
 import { EventEmitter } from 'events';
 
 const jobEvents = new EventEmitter();
@@ -191,11 +191,11 @@ app.patch('/api/jobs/:id/assign-editor', async (req: Request, res: Response) => 
           })
           .where(eq(jobs.id, jobId))
           .returning();
-        
+
         if (updatedJob) {
           jobEvents.emit(SSE_EVENTS.JOB_STATUS_UPDATE, updatedJob);
         }
-        
+
         console.log(`Job ${jobId} moved to REVIEWED after transcription`);
       } catch (err) {
         console.error(`Failed to move Job ${jobId} to REVIEWED:`, err);
@@ -239,9 +239,6 @@ app.patch('/api/jobs/:id/complete', async (req: Request, res: Response) => {
     errorResponse(res);
   }
 });
-
-
-
 
 // User Endpoints
 app.get('/api/reporters', async (req: Request, res: Response) => {
