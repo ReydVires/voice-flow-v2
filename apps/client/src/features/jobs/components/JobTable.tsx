@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Job } from '@mern/types';
-import { JobTableRow } from '../molecules/JobTableRow';
-import { Pagination } from '../molecules/Pagination';
+import { JobTableRow } from './JobTableRow';
+import { Pagination } from '../../../components/ui/Pagination';
 import styles from './JobTable.module.css';
 
 interface JobTableProps {

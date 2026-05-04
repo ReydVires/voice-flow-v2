@@ -2,9 +2,9 @@ import { useState } from 'react';
 import type { Job } from '@mern/types';
 import { useJobs, useCreateJob, useCompleteJob, useAssignReporter, useAssignEditor, useReporters, useEditors } from './features/jobs/hooks/useJobs';
 import { useJobEvents } from './features/jobs/hooks/useJobEvents';
-import { JobTable } from './components/organisms/JobTable';
-import { JobForm } from './components/organisms/JobForm';
-import { AssignmentModal } from './components/organisms/AssignmentModal';
+import { JobTable } from './features/jobs/components/JobTable';
+import { JobForm } from './features/jobs/components/JobForm';
+import { AssignmentModal } from './features/jobs/components/AssignmentModal';
 import utils from './styles/utils.module.css';
 import styles from './App.module.css';
 

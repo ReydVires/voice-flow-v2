@@ -1,6 +1,6 @@
 import type { Job } from '@mern/types';
-import { StatusBadge } from '../atoms/StatusBadge';
-import { Button } from '../atoms/Button';
+import { StatusBadge } from '../../../components/ui/StatusBadge';
+import { Button } from '../../../components/ui/Button';
 import styles from './JobTableRow.module.css';
 
 interface JobTableRowProps {

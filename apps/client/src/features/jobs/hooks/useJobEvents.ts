@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { SSE_EVENTS } from '@mern/types';
 import { API_BASE_URL } from '../../../api/config';
-import { useToast } from '../../../components/atoms/Toast';
+import { useToast } from '../../../components/ui/Toast';
 
 export const useJobEvents = () => {
   const queryClient = useQueryClient();

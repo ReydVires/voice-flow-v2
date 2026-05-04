@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react';
-import { Input, Select } from '../atoms/FormElements';
-import { Button } from '../atoms/Button';
+import { Input, Select } from '../../../components/ui/FormElements';
+import { Button } from '../../../components/ui/Button';
 import type { LocationType, Job } from '@mern/types';
 import styles from './JobForm.module.css';
-import utils from '../../styles/utils.module.css';
+import utils from '../../../styles/utils.module.css';
 
 type OnSubmit = (data: Pick<Job, 'caseName' | 'duration' | 'locationType' | 'locationName'>) => void;
 

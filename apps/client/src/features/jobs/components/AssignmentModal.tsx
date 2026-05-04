@@ -1,7 +1,7 @@
 import type { User } from '@mern/types';
-import { Button } from '../atoms/Button';
+import { Button } from '../../../components/ui/Button';
 import styles from './Modal.module.css';
-import utils from '../../styles/utils.module.css';
+import utils from '../../../styles/utils.module.css';
 
 interface AssignmentModalProps {
   title: string;

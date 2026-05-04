@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { Job, User, JobStatus, ApiResponse } from '@mern/types';
+import type { Job, User, ApiResponse } from '@mern/types';
 import { API_BASE_URL as API_URL } from '../../../api/config';
 import { handleResponse } from '../../../api/services';
 

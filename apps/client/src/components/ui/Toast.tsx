@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
+import React, { useState, useCallback, createContext, useContext } from 'react';
 import styles from './Toast.module.css';
 
 type ToastType = 'success' | 'info' | 'error';
